@@ -56,3 +56,5 @@ Makefile
 build/
 dist/
 nbproject/
+debug/
+.vscode/
