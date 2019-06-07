@@ -29,57 +29,30 @@
 
 #define SYSCLK 80000000L // Give the system?s clock frequency
 
-char verify[20] = "abcdefghilmnopqrstuv";
-char data[];
-
 void init()
 {
-    //#####config uart#####
+
     OpenUART1(UART_EN, UART_RX_ENABLE | UART_TX_ENABLE, 9600);
     // Configure UART1 RX Interrupt
     ConfigIntUART1(UART_INT_PR2 | UART_RX_INT_EN);
     // Must enable glocal interrupts - in this case, we are using multi-vector mode
     INTEnableSystemMultiVectoredInt();
-    //#####################
-
-    SYSTEMConfigPerformance(SYSCLK);
-    //initializeADC(); // Initialize the ADC10
-    TRISD = 0x0000;
-    TRISB = 0x0002;
 }
+
+char data[20] = "abcdefghilmnopqrstuv";
 
 void main(void)
 {
+
     init();
 
     while (1)
     {
-        if (data == verify){
-            LATD = 0x0004;      //se ricevuto paccketto ok accendo led verde                                            D0
-        }else{
-            LATD = 0x0008;      //se non è giusto o non è arrivato giusto accendo rosso (sempre acceso)                 D1
-        }
+
+        while (BusyUART1()){};
+        // Attendo che la UART sia libera
+        putcUART1(data);  // Transmit 'data' through UART
+        putcUART1('13'); // Transmit '13'(carriage return)
     }
     return;
-}
-
-void __ISR(_UART1_VECTOR, ipl2) IntUart1Handler(void)
-{
-    // Is this an RX interrupt?
-    if (mU1RXGetIntFlag())
-    {
-        if (DataRdyUART1())
-        {
-            data = (char)ReadUART1(); // Read data from Rx
-        }
-        // Clear the RX interrupt Flag
-        mU1RXClearIntFlag();
-        // Echo what we just received.
-        putcUART1(ReadUART1());
-    }
-    // We don't care about TX interrupt
-    if (mU1TXGetIntFlag())
-    {
-        mU1TXClearIntFlag();
-    }
 }
