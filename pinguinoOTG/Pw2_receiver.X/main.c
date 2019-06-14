@@ -49,19 +49,19 @@ void main(void)
 {
 
     initializeUART();
-    TRISD = 0x04;   //set the pin 2 in input
+    TRISD = 0x04;   //set the pin 2 in input            //why?!
     TRISD = 0x0000; //define if input or output             //output = 0, input = 1
 
-    while (1)
-    {
-        if (flag)
-        {
-            if (data == 'a')
-            {
+    while (1){
+
+        if (flag){
+
+            if (data == 'a'){
+
                 TRISD = 0x0020; //light led1
             }
-            if (data == 'z')
-            {
+            if (data == 'z'){
+                
                 TRISD = 0x0040; //light led2
             }
             
@@ -74,16 +74,16 @@ void main(void)
 
 void __ISR(_UART1_VECTOR, ipl2) IntUart1Handler(void)
 {
-    // Is this an RX interrupt?
+    //RX interrupt
     if (mU1RXGetIntFlag())
     {
 
         data = (char)ReadUART1(); // Read data from Rx
         flag = 1;
-        // Clear the RX interrupt Flag
-        mU1RXClearIntFlag();
-        // Echo what we just received.
-        //putcUART1(ReadUART1());
+        
+        mU1RXClearIntFlag(); // Clear the RX interrupt Flag
+        /
+        //putcUART1(ReadUART1()); // Echo what we just received
     }
     // We don't care about TX interrupt
     if (mU1TXGetIntFlag())
