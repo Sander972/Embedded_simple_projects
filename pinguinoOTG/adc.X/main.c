@@ -37,14 +37,14 @@
 #define CONFIGSCAN (SKIP_SCAN_AN0 | SKIP_SCAN_AN2 | SKIP_SCAN_AN3 | SKIP_SCAN_AN4 | SKIP_SCAN_AN5 | SKIP_SCAN_AN6 | SKIP_SCAN_AN7 | SKIP_SCAN_AN8 | SKIP_SCAN_AN9 | SKIP_SCAN_AN10 | SKIP_SCAN_AN11 | SKIP_SCAN_AN12 | SKIP_SCAN_AN13 | SKIP_SCAN_AN14 | SKIP_SCAN_AN15)
 
 const char led[8] = { //single led
-    0x0004,
-    0x0008,
-    0x0011,
-    0x0020,
-    0x0040,
-    0x0080,
-    0x0100,
-    0x0800
+    0x0004,     //1
+    0x0008,     //2
+    0x0011,     //3
+    0x0020,     //4
+    0x0040,     //5
+    0x0080,     //6
+    0x0100,     //7
+    0x0800      //8
 
 };
 

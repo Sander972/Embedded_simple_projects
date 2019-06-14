@@ -1,9 +1,14 @@
 /*
  * File:   main.c
- * Author: Sander
+ * Author: Usr
  *
- * Created on 07 giugno 2019, 15.31
+ * Created on 13 giugno 2019, 16.39
  */
+
+/*RECEIVER*/
+/*
+tested 13/6/2019 --> working
+*/
 
 #pragma config FPLLIDIV = DIV_2  // PLL Input Divider (1x Divider)
 #pragma config FPLLMUL = MUL_20  // PLL Multiplier (24x Multiplier)
@@ -24,35 +29,65 @@
 #pragma config PWP = OFF         // Program Flash Write Protect (Disable)
 #pragma config BWP = OFF         // Boot Flash Write Protect bit (Protection Disabled)
 #pragma config CP = OFF          // Code Protect (Protection Disabled)
+
 #include <p32xxxx.h>
-#include <plib.h> // Include the PIC32 Peripheral Library.
+#include <plib.h>
+#define SYSCLK 8000000
+#define DESIRED_BAUDRATE 9600
 
-#define SYSCLK 80000000L // Give the system?s clock frequency
+int flag;
+char data;
 
-void init()
+void initializeUART()
 {
-
-    OpenUART1(UART_EN, UART_RX_ENABLE | UART_TX_ENABLE, 9600);
-    // Configure UART1 RX Interrupt
+    OpenUART1(UART_EN, UART_RX_ENABLE | UART_TX_ENABLE, DESIRED_BAUDRATE);
     ConfigIntUART1(UART_INT_PR2 | UART_RX_INT_EN);
-    // Must enable glocal interrupts - in this case, we are using multi-vector mode
     INTEnableSystemMultiVectoredInt();
 }
-
-char data[20] = "abcdefghilmnopqrstuv";
 
 void main(void)
 {
 
-    init();
+    initializeUART();
+    TRISD = 0x04;   //set the pin 2 in input
+    TRISD = 0x0000; //define if input or output             //output = 0, input = 1
 
     while (1)
     {
-
-        while (BusyUART1()){};
-        // Attendo che la UART sia libera
-        putcUART1(data);  // Transmit 'data' through UART
-        putcUART1('13'); // Transmit '13'(carriage return)
+        if (flag)
+        {
+            if (data == 'a')
+            {
+                TRISD = 0x0020; //light led1
+            }
+            if (data == 'z')
+            {
+                TRISD = 0x0040; //light led2
+            }
+            
+            flag = 0;
+        }
     }
+
     return;
+}
+
+void __ISR(_UART1_VECTOR, ipl2) IntUart1Handler(void)
+{
+    // Is this an RX interrupt?
+    if (mU1RXGetIntFlag())
+    {
+
+        data = (char)ReadUART1(); // Read data from Rx
+        flag = 1;
+        // Clear the RX interrupt Flag
+        mU1RXClearIntFlag();
+        // Echo what we just received.
+        //putcUART1(ReadUART1());
+    }
+    // We don't care about TX interrupt
+    if (mU1TXGetIntFlag())
+    {
+        mU1TXClearIntFlag();
+    }
 }
